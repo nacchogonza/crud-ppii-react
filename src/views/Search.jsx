@@ -8,12 +8,17 @@ import Card from "react-bootstrap/Card";
 
 /* import "./App.css"; */
 import "bootstrap/dist/css/bootstrap.min.css";
+import { EpisodeModal } from "./components/EpisodeModal";
+import { DeleteModal } from "./components/DeleteModal";
 
 export const SearchView = () => {
   const [episodes, setEpisodes] = useState([]);
   const [filterEpisodes, setFilterEpisodes] = useState([]);
   const [directors, setDirectors] = useState([]);
+  const [episodeToShow, setEpisodeToShow] = useState({});
+  const [episodeToDelete, setEpisodeToDelete] = useState({});
   const [modalShow, setModalShow] = React.useState(false);
+  const [modalDelete, setModalDelete] = React.useState(false);
 
   const {
     register,
@@ -22,11 +27,14 @@ export const SearchView = () => {
     formState: { errors },
   } = useForm();
   const onSubmit = (data) => {
+    if (data.titulo === "" && data.temporada === "" && data.director === "")
+      return;
     axios
       .get("http://localhost:3000/api/data/search", {
         params: {
           title: data.titulo,
-          director: data.director,
+          season: data.temporada,
+          directed_by: data.director,
         },
       })
       .then((response) => {
@@ -47,9 +55,18 @@ export const SearchView = () => {
     setDirectors(directorsTemp);
   }, [episodes]);
 
+  useEffect(() => {
+    if (!modalDelete && episodeToDelete) {
+      axios.get("http://localhost:3000/api/data").then((response) => {
+        setEpisodes(response?.data || []);
+        setFilterEpisodes([]);
+      });
+    }
+  }, [modalDelete, episodeToDelete]);
+
   return (
     <main className="flex justify-center p-20 bg-gray-600">
-      <div className="bg-white w-2/5 p-10 rounded-lg flex flex-col text-center align-middle">
+      <div className="bg-white w-3/5 p-10 rounded-lg flex flex-col text-center align-middle">
         <h1>CRUD The Simpsons Episodes</h1>
         <h3>Buscar Capitulo</h3>
         <div className="flex justify-center my-8">
@@ -73,11 +90,43 @@ export const SearchView = () => {
 
             <Form.Group className="mb-3">
               <Form.Label>Temporada</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Temporada"
-                {...register("temporada")}
-              />
+              <Form.Select {...register("temporada")}>
+                <option value="">Seleccione Temporada</option>
+                <option value="1">Temporada 1</option>
+                <option value="2">Temporada 2</option>
+                <option value="3">Temporada 3</option>
+                <option value="4">Temporada 4</option>
+                <option value="5">Temporada 5</option>
+                <option value="6">Temporada 6</option>
+                <option value="7">Temporada 7</option>
+                <option value="8">Temporada 8</option>
+                <option value="9">Temporada 9</option>
+                <option value="10">Temporada 10</option>
+                <option value="11">Temporada 11</option>
+                <option value="12">Temporada 12</option>
+                <option value="13">Temporada 13</option>
+                <option value="14">Temporada 14</option>
+                <option value="15">Temporada 15</option>
+                <option value="16">Temporada 16</option>
+                <option value="17">Temporada 17</option>
+                <option value="18">Temporada 18</option>
+                <option value="19">Temporada 19</option>
+                <option value="20">Temporada 20</option>
+                <option value="21">Temporada 21</option>
+                <option value="22">Temporada 22</option>
+                <option value="23">Temporada 23</option>
+                <option value="24">Temporada 24</option>
+                <option value="25">Temporada 25</option>
+                <option value="26">Temporada 26</option>
+                <option value="27">Temporada 27</option>
+                <option value="28">Temporada 28</option>
+                <option value="29">Temporada 29</option>
+                <option value="30">Temporada 30</option>
+                <option value="31">Temporada 31</option>
+                <option value="32">Temporada 32</option>
+                <option value="33">Temporada 33</option>
+                <option value="34">Temporada 34</option>
+              </Form.Select>
             </Form.Group>
 
             <Form.Label>Director</Form.Label>
@@ -98,14 +147,12 @@ export const SearchView = () => {
             </div>
           </Form>
         </div>
-
-        {/* <MyVerticallyCenteredModal
-          show={modalShow}
-          onHide={() => setModalShow(false)}
-        /> */}
-
         <div className="flex flex-col gap-4 mt-10">
-          <h4>Resultados</h4>
+          <h4>
+            {filterEpisodes.length
+              ? "Resultados"
+              : "Todavía no hay resultados para mostrar"}
+          </h4>
           {filterEpisodes.map((filtered) => (
             <Card>
               <Card.Body>
@@ -116,12 +163,39 @@ export const SearchView = () => {
                 <Card.Text>
                   Viewers: {filtered.us_viewers_in_millions}
                 </Card.Text>
-                <Button variant="primary">Go somewhere</Button>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setEpisodeToShow(filtered);
+                    setModalShow(true);
+                  }}
+                >
+                  Ver Más
+                </Button>
+                <Button
+                  variant="danger"
+                  className="ml-4"
+                  onClick={() => {
+                    setEpisodeToDelete(filtered);
+                    setModalDelete(true);
+                  }}
+                >
+                  Eliminar Episodio
+                </Button>
               </Card.Body>
-              {/* <div>{filtered.title}</div> */}
             </Card>
           ))}
         </div>
+        <EpisodeModal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          episode={episodeToShow}
+        />
+        <DeleteModal
+          show={modalDelete}
+          onHide={() => setModalDelete(false)}
+          episode={episodeToDelete}
+        />
       </div>
     </main>
   );

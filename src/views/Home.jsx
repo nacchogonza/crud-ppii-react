@@ -46,17 +46,13 @@ export const HomeView = () => {
               {episodes.map((filtered) => {
                 if (filtered.season === `\t${season}`)
                   return (
-                    <Card>
+                    <Card key={`card-episode-${filtered.id}`}>
                       <Card.Body>
                         <Card.Title>Título: {filtered.title}</Card.Title>
                         <Card.Text>
                           Descripción: {filtered.description}
                         </Card.Text>
-                        {/* <Card.Text>Temporada: {filtered.season}</Card.Text> */}
                         <Card.Text>Director: {filtered.directed_by}</Card.Text>
-                        {/* <Card.Text>
-                        Viewers: {filtered.us_viewers_in_millions}
-                      </Card.Text> */}
                         <Button
                           variant="primary"
                           onClick={() => {
@@ -67,7 +63,6 @@ export const HomeView = () => {
                           Ver Más
                         </Button>
                       </Card.Body>
-                      {/* <div>{filtered.title}</div> */}
                     </Card>
                   );
               })}
