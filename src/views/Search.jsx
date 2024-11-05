@@ -10,6 +10,7 @@ import Card from "react-bootstrap/Card";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { EpisodeModal } from "./components/EpisodeModal";
 import { DeleteModal } from "./components/DeleteModal";
+import { useNavigate } from "react-router-dom";
 
 export const SearchView = () => {
   const [episodes, setEpisodes] = useState([]);
@@ -23,9 +24,9 @@ export const SearchView = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
+  const navigate = useNavigate();
   const onSubmit = (data) => {
     if (data.titulo === "" && data.temporada === "" && data.director === "")
       return;
@@ -145,13 +146,24 @@ export const SearchView = () => {
                 Buscar
               </Button>
             </div>
+
+            <div className="flex justify-center">
+              <Button
+                variant="secondary"
+                type="submit"
+                className="w-1/3 mt-2 relative items-center"
+                onClick={() => navigate('../all-episodes')}
+              >
+                Ver Todos
+              </Button>
+            </div>
           </Form>
         </div>
         <div className="flex flex-col gap-4 mt-10">
           <h4>
             {filterEpisodes.length
               ? "Resultados"
-              : "Todavía no hay resultados para mostrar"}
+              : "Utilizá los filtros para buscar capítulos específicos"}
           </h4>
           {filterEpisodes.map((filtered) => (
             <Card>
@@ -171,6 +183,13 @@ export const SearchView = () => {
                   }}
                 >
                   Ver Más
+                </Button>
+                <Button
+                  variant="success"
+                  className="ml-4"
+                  onClick={() => navigate(`../edit/${filtered.id}`)}
+                >
+                  Editar Episodio
                 </Button>
                 <Button
                   variant="danger"

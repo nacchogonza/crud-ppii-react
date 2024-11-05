@@ -10,28 +10,19 @@ import { EpisodeModal } from "./components/EpisodeModal";
 
 import "../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useNavigate } from "react-router-dom";
 
 export const HomeView = () => {
+  const navigate = useNavigate();
   const [episodes, setEpisodes] = useState([]);
-  const [filterEpisodes, setFilterEpisodes] = useState([]);
-  const [directors, setDirectors] = useState([]);
   const [episodeToShow, setEpisodeToShow] = useState({});
   const [modalShow, setModalShow] = React.useState(false);
 
   useEffect(() => {
     axios.get("http://localhost:3000/api/data").then((response) => {
-      console.log(response.data);
-
       setEpisodes(response?.data || []);
     });
   }, []);
-
-  useEffect(() => {
-    const directorsTemp = [
-      ...new Set(episodes.map((record) => record.directed_by)),
-    ];
-    setDirectors(directorsTemp);
-  }, [episodes]);
 
   let season = 0;
 
@@ -114,6 +105,17 @@ export const HomeView = () => {
           {renderEpisodesBySeason()}
           {renderEpisodesBySeason()}
           {renderEpisodesBySeason()}
+        </div>
+
+        <div className="flex justify-center">
+          <Button
+            variant="primary"
+            type="submit"
+            className="w-1/3 mt-6 relative items-center"
+            onClick={() => navigate("../")}
+          >
+            Volver
+          </Button>
         </div>
         <EpisodeModal
           show={modalShow}

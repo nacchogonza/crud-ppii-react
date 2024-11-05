@@ -28,7 +28,7 @@ export const EpisodeModal = (props) => {
         <p>Fecha de Emisión: {episode.original_air_date}</p>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
+        <Button onClick={props.onHide}>Cerrar</Button>
       </Modal.Footer>
     </Modal>
   );
