@@ -11,6 +11,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { EpisodeModal } from "./components/EpisodeModal";
 import { DeleteModal } from "./components/DeleteModal";
 import { useNavigate, useParams } from "react-router-dom";
+import { EditConfirmationModal } from "./components/EditConfirmationModal";
 
 export const EditView = () => {
   const [episodes, setEpisodes] = useState([]);
@@ -37,13 +38,13 @@ export const EditView = () => {
       description: data.descripcion,
       directed_by: data.director,
     };
-    console.log(episode);
+    console.log(episode); 
     axios
       .put(`http://localhost:3000/api/data/${params.id}`, {
         ...episode,
       })
       .then((response) => {
-        console.log("modificado");
+        setModalShow(true);
       });
   };
 
@@ -130,11 +131,11 @@ export const EditView = () => {
             </div>
           </Form>
         </div>
-        {/* <EpisodeModal
+        <EditConfirmationModal
           show={modalShow}
           onHide={() => setModalShow(false)}
-          episode={episodeToShow}
-        /> */}
+          id={episodeToModify.id}
+        />
       </div>
     </main>
   );

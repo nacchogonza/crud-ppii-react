@@ -11,68 +11,58 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { EpisodeModal } from "./components/EpisodeModal";
 import { DeleteModal } from "./components/DeleteModal";
 import { useNavigate } from "react-router-dom";
-import { DeleteConfirmationModal } from "./components/DeleteConfirmationModal";
 
-export const SearchView = () => {
+export const AddView = () => {
   const [episodes, setEpisodes] = useState([]);
-  const [filterEpisodes, setFilterEpisodes] = useState([]);
+  const [episodeToAdd, setEpisodeToModify] = useState([]);
   const [directors, setDirectors] = useState([]);
-  const [episodeToShow, setEpisodeToShow] = useState({});
-  const [episodeToDelete, setEpisodeToDelete] = useState({});
   const [modalShow, setModalShow] = React.useState(false);
-  const [modalDelete, setModalDelete] = React.useState(false);
-  const [modalDeleteConfirmation, setModalDeleteConfirmation] =
-    React.useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm();
   const navigate = useNavigate();
   const onSubmit = (data) => {
-    if (data.titulo === "" && data.temporada === "" && data.director === "")
+    console.log(data);
+    if (data.titulo === "" && data.descripcion === "" && data.director === "")
       return;
+
+    const episode = {
+      title: data.titulo,
+      description: data.descripcion,
+      directed_by: data.director,
+    };
     axios
-      .get("http://localhost:3000/api/data/search", {
-        params: {
-          title: data.titulo,
-          season: data.temporada,
-          directed_by: data.director,
-        },
+      .post(`http://localhost:3000/api/data`, {
+        ...episode,
       })
       .then((response) => {
-        setFilterEpisodes(response?.data || []);
+        console.log("Episodio agregado");
       });
   };
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/data").then((response) => {
-      setEpisodes(response?.data || []);
-    });
-  }, []);
-
-  useEffect(() => {
-    const directorsTemp = [
-      ...new Set(episodes.map((record) => record.directed_by)),
-    ];
-    setDirectors(directorsTemp);
-  }, [episodes]);
-
-  useEffect(() => {
-    if (!modalDelete && episodeToDelete) {
-      axios.get("http://localhost:3000/api/data").then((response) => {
-        setEpisodes(response?.data || []);
-        setFilterEpisodes([]);
+    const fetchData = async () => {
+      await axios.get("http://localhost:3000/api/data").then((response) => {
+        /* setEpisodes(response); */
+        const directorsTemp = [
+          ...new Set(response?.data.map((record) => record.directed_by)),
+        ];
+        setDirectors(directorsTemp);
       });
-    }
-  }, [modalDelete, episodeToDelete]);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <main className="flex justify-center p-20 bg-gray-600">
       <div className="bg-white w-3/5 p-10 rounded-lg flex flex-col text-center align-middle">
         <h1>CRUD The Simpsons Episodes</h1>
-        <h3>Buscar Capitulo</h3>
+        <h3>Agregar Capitulo</h3>
         <div className="flex justify-center my-8">
           <Form
             className="flex flex-col w-2/3 justify-center"
@@ -83,11 +73,25 @@ export const SearchView = () => {
               <Form.Control
                 type="text"
                 placeholder="Título del capítulo"
-                {...register("titulo")}
+                {...register("titulo", { required: true })}
               />
               {errors?.titulo?.type === "required" && (
                 <Form.Text className="text-muted">
                   El Título del capítulo es requerido para la búsqueda
+                </Form.Text>
+              )}
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Descripción del Capítulo</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Descripción del capítulo"
+                {...register("descripcion", { required: true })}
+              />
+              {errors?.descripcion?.type === "required" && (
+                <Form.Text className="text-muted">
+                  La Descripcion del capítulo es requerido para la búsqueda
                 </Form.Text>
               )}
             </Form.Group>
@@ -140,103 +144,38 @@ export const SearchView = () => {
                 <option value={director}>{director}</option>
               ))}
             </Form.Select>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Escrito Por</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Escrito Por"
+                {...register("writed_by", { required: true })}
+              />
+              {errors?.writed_by?.type === "required" && (
+                <Form.Text className="text-muted">
+                  La Descripcion del capítulo es requerido para la búsqueda
+                </Form.Text>
+              )}
+            </Form.Group>
+
+
             <div className="flex justify-center">
               <Button
                 variant="primary"
                 type="submit"
                 className="w-1/3 mt-6 relative items-center"
               >
-                Buscar
-              </Button>
-            </div>
-
-            <div className="flex justify-center">
-              <Button
-                variant="success"
-                type="submit"
-                className="w-1/3 mt-2 relative items-center"
-                onClick={() => navigate("../add")}
-              >
-                Agregar Episodio
-              </Button>
-            </div>
-
-            <div className="flex justify-center">
-              <Button
-                variant="secondary"
-                type="submit"
-                className="w-1/3 mt-2 relative items-center"
-                onClick={() => navigate("../all-episodes")}
-              >
-                Ver Todos
+                Agregar
               </Button>
             </div>
           </Form>
         </div>
-        <div className="flex flex-col gap-4 mt-10">
-          <h4>
-            {filterEpisodes.length
-              ? "Resultados"
-              : "Utilizá los filtros para buscar capítulos específicos"}
-          </h4>
-          {filterEpisodes.map((filtered) => (
-            <Card>
-              <Card.Body>
-                <Card.Title>{filtered.title}</Card.Title>
-                <Card.Text>{filtered.description}</Card.Text>
-                <Card.Text>Temporada: {filtered.season}</Card.Text>
-                <Card.Text>Director: {filtered.directed_by}</Card.Text>
-                <Card.Text>
-                  Viewers: {filtered.us_viewers_in_millions}
-                </Card.Text>
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    setEpisodeToShow(filtered);
-                    setModalShow(true);
-                  }}
-                >
-                  Ver Más
-                </Button>
-                <Button
-                  variant="success"
-                  className="ml-4"
-                  onClick={() => navigate(`../edit/${filtered.id}`)}
-                >
-                  Editar Episodio
-                </Button>
-                <Button
-                  variant="danger"
-                  className="ml-4"
-                  onClick={() => {
-                    setEpisodeToDelete(filtered);
-                    setModalDelete(true);
-                  }}
-                >
-                  Eliminar Episodio
-                </Button>
-              </Card.Body>
-            </Card>
-          ))}
-        </div>
-        <EpisodeModal
+        {/* <EpisodeModal
           show={modalShow}
           onHide={() => setModalShow(false)}
           episode={episodeToShow}
-        />
-        <DeleteModal
-          show={modalDelete}
-          onHide={() => {
-            setModalDelete(false);
-            setModalDeleteConfirmation(true);
-          }}
-          episode={episodeToDelete}
-        />
-        <DeleteConfirmationModal
-          show={modalDeleteConfirmation}
-          onHide={() => setModalDeleteConfirmation(false)}
-          episode={episodeToDelete}
-        />
+        /> */}
       </div>
     </main>
   );

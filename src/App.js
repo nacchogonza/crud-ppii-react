@@ -6,6 +6,7 @@ import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { EditView } from "./views/Edit";
+import { AddView } from "./views/Add";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<SearchView />} />
         <Route path="/all-episodes" element={<HomeView />} />
         <Route path="/edit/:id" element={<EditView />} />
+        <Route path="/add" element={<AddView />} />
       </Routes>
     </div>
   );
