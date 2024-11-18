@@ -1,6 +1,6 @@
 import React from "react";
+import { AllEpisodesView } from "./views/AllEpisodes";
 import { HomeView } from "./views/Home";
-import { SearchView } from "./views/Search";
 import { Routes, Route } from "react-router-dom";
 
 import "./App.css";
@@ -12,8 +12,8 @@ function App() {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<SearchView />} />
-        <Route path="/all-episodes" element={<HomeView />} />
+        <Route path="/" element={<HomeView />} />
+        <Route path="/all-episodes" element={<AllEpisodesView />} />
         <Route path="/edit/:id" element={<EditView />} />
         <Route path="/add" element={<AddView />} />
       </Routes>
