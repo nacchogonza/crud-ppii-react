@@ -10,13 +10,16 @@ import { EpisodeModal } from "./components/EpisodeModal";
 
 import "../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export const AllEpisodesView = () => {
   const navigate = useNavigate();
   const [episodes, setEpisodes] = useState([]);
   const [episodeToShow, setEpisodeToShow] = useState({});
   const [modalShow, setModalShow] = React.useState(false);
+
+  const [params] = useSearchParams();
+  const userLevel = params.get("userLevel") || '';
 
   useEffect(() => {
     axios.get("http://localhost:3000/api/data").then((response) => {
@@ -65,7 +68,7 @@ export const AllEpisodesView = () => {
   };
 
   return (
-    <main className="flex justify-center p-20 bg-gray-600">
+    <main className="flex justify-center p-20 bg-gray-600 min-h-lvh">
       <div className="bg-white w-3/5 p-10 rounded-lg flex flex-col text-center align-middle">
         <h1>CRUD The Simpsons Episodes</h1>
         <h3>Capítulos por Temporada</h3>
@@ -112,7 +115,7 @@ export const AllEpisodesView = () => {
             variant="primary"
             type="submit"
             className="w-1/3 mt-6 relative items-center"
-            onClick={() => navigate("../")}
+            onClick={() => navigate(`../?userLevel=${userLevel}`)}
           >
             Volver
           </Button>

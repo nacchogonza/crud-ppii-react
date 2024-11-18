@@ -6,8 +6,8 @@ import "../../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 
-export const EditConfirmationModal = (props) => {
-  const { id } = props;
+export const AddConfirmationModal = (props) => {
+  const { titulo, id } = props;
   const navigate = useNavigate();
 
   return (
@@ -19,17 +19,17 @@ export const EditConfirmationModal = (props) => {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Episodio Editado Correctanente
+          Episodio Agregado Correctanente
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p>
-          El Episodio ID {id} fue modificado correctamente
+          El Episodio con titulo {titulo} fue creado correctamente con el ID {id}
         </p>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="danger" className="ml-4" onClick={() => navigate("../?userLevel=admin")}>
-          Cerrar
+          Volver al Inicio
         </Button>
       </Modal.Footer>
     </Modal>

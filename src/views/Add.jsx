@@ -3,51 +3,60 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-/* import Modal from "react-bootstrap/Modal"; */
-
-/* import "./App.css"; */
 import "bootstrap/dist/css/bootstrap.min.css";
-import { EpisodeModal } from "./components/EpisodeModal";
-import { DeleteModal } from "./components/DeleteModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { AddConfirmationModal } from "./components/AddConfirmationModal";
 
 export const AddView = () => {
   const [episodes, setEpisodes] = useState([]);
-  const [episodeToAdd, setEpisodeToModify] = useState([]);
+  const [episodeToAdd, setEpisodeToAdd] = useState({});
   const [directors, setDirectors] = useState([]);
   const [modalShow, setModalShow] = React.useState(false);
+
+  const [params] = useSearchParams();
+  const userLevel = params.get('userLevel')
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm();
+
   const navigate = useNavigate();
   const onSubmit = (data) => {
-    console.log(data);
-    if (data.titulo === "" && data.descripcion === "" && data.director === "")
-      return;
-
+    const episodeId = episodes.length + 1;
     const episode = {
+      id: episodeId.toString(),
       title: data.titulo,
+      season: `\t${data.temporada}`,
       description: data.descripcion,
       directed_by: data.director,
+      written_by: data.writed_by,
+      us_viewers_in_millions: data.viewers,
+      original_air_date: data.emit_day,
     };
     axios
       .post(`http://localhost:3000/api/data`, {
         ...episode,
       })
       .then((response) => {
-        console.log("Episodio agregado");
+        console.log(response.data.message);
+        console.log("Episodio agregado -->", response.data.record);
+        setEpisodeToAdd(response.data.record);
+        setModalShow(true);
       });
   };
 
   useEffect(() => {
+
+    /* Manejo de permisos de la ruta para usuarios no admin */
+    if (userLevel != "admin") {
+      navigate("../");
+    }
+
     const fetchData = async () => {
       await axios.get("http://localhost:3000/api/data").then((response) => {
-        /* setEpisodes(response); */
+        setEpisodes(response?.data || []);
         const directorsTemp = [
           ...new Set(response?.data.map((record) => record.directed_by)),
         ];
@@ -57,9 +66,10 @@ export const AddView = () => {
 
     fetchData();
   }, []);
+  console.log(episodes)
 
   return (
-    <main className="flex justify-center p-20 bg-gray-600">
+    <main className="flex justify-center p-20 bg-gray-600 min-h-lvh">
       <div className="bg-white w-3/5 p-10 rounded-lg flex flex-col text-center align-middle">
         <h1>CRUD The Simpsons Episodes</h1>
         <h3>Agregar Capitulo</h3>
@@ -98,7 +108,7 @@ export const AddView = () => {
 
             <Form.Group className="mb-3">
               <Form.Label>Temporada</Form.Label>
-              <Form.Select {...register("temporada")}>
+              <Form.Select {...register("temporada", { required: true })}>
                 <option value="">Seleccione Temporada</option>
                 <option value="1">Temporada 1</option>
                 <option value="2">Temporada 2</option>
@@ -135,15 +145,27 @@ export const AddView = () => {
                 <option value="33">Temporada 33</option>
                 <option value="34">Temporada 34</option>
               </Form.Select>
+              {errors?.temporada?.type === "required" && (
+                <Form.Text className="text-muted">
+                  Se debe seleccionar una temporada
+                </Form.Text>
+              )}
             </Form.Group>
 
-            <Form.Label>Director</Form.Label>
-            <Form.Select {...register("director")}>
-              <option value="">Seleccione Director</option>
-              {directors.map((director) => (
-                <option value={director}>{director}</option>
-              ))}
-            </Form.Select>
+            <Form.Group className="mb-3">
+              <Form.Label>Director</Form.Label>
+              <Form.Select {...register("director", { required: true })}>
+                <option value="">Seleccione Director</option>
+                {directors.map((director) => (
+                  <option value={director}>{director}</option>
+                ))}
+              </Form.Select>
+              {errors?.director?.type === "required" && (
+                <Form.Text className="text-muted">
+                  Se debe seleccionar un Director
+                </Form.Text>
+              )}
+            </Form.Group>
 
             <Form.Group className="mb-3">
               <Form.Label>Escrito Por</Form.Label>
@@ -154,11 +176,38 @@ export const AddView = () => {
               />
               {errors?.writed_by?.type === "required" && (
                 <Form.Text className="text-muted">
-                  La Descripcion del capítulo es requerido para la búsqueda
+                  El/La Escritor/a es un campo obligatorio
                 </Form.Text>
               )}
             </Form.Group>
 
+            <Form.Group className="mb-3">
+              <Form.Label>Visualizaciones</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Visualizaciones (en Millones)"
+                {...register("viewers", { required: true })}
+              />
+              {errors?.viewers?.type === "required" && (
+                <Form.Text className="text-muted">
+                  La cantidad de Visualizaciones es obligatoria
+                </Form.Text>
+              )}
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha de Emision</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Fecha de Emision (YYYY-MM-DD)"
+                {...register("emit_day", { required: true })}
+              />
+              {errors?.emit_day?.type === "required" && (
+                <Form.Text className="text-muted">
+                  La fecha de emision es obligatoria
+                </Form.Text>
+              )}
+            </Form.Group>
 
             <div className="flex justify-center">
               <Button
@@ -171,11 +220,12 @@ export const AddView = () => {
             </div>
           </Form>
         </div>
-        {/* <EpisodeModal
+        <AddConfirmationModal
           show={modalShow}
           onHide={() => setModalShow(false)}
-          episode={episodeToShow}
-        /> */}
+          id={episodeToAdd.id}
+          title={episodeToAdd.title}
+        />
       </div>
     </main>
   );

@@ -10,7 +10,7 @@ import Card from "react-bootstrap/Card";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { EpisodeModal } from "./components/EpisodeModal";
 import { DeleteModal } from "./components/DeleteModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { DeleteConfirmationModal } from "./components/DeleteConfirmationModal";
 
 export const HomeView = () => {
@@ -21,8 +21,11 @@ export const HomeView = () => {
   const [episodeToDelete, setEpisodeToDelete] = useState({});
   const [modalShow, setModalShow] = React.useState(false);
   const [modalDelete, setModalDelete] = React.useState(false);
-  const [modalDeleteConfirmation, setModalDeleteConfirmation] =
-    React.useState(false);
+  const [modalDeleteConfirmation, setModalDeleteConfirmation] = useState(false);
+  const [searched, setSearched] = React.useState(false);
+
+  const [params] = useSearchParams();
+  const userLevel = params.get("userLevel") || "";
 
   const {
     register,
@@ -44,6 +47,7 @@ export const HomeView = () => {
       .then((response) => {
         setFilterEpisodes(response?.data || []);
       });
+      setSearched(true)
   };
 
   useEffect(() => {
@@ -69,8 +73,8 @@ export const HomeView = () => {
   }, [modalDelete, episodeToDelete]);
 
   return (
-    <main className="flex justify-center p-20 bg-gray-600">
-      <div className="bg-white w-3/5 p-10 rounded-lg flex flex-col text-center align-middle">
+    <main className="flex justify-center p-20 bg-gray-600 min-h-lvh">
+      <div className="bg-white w-3/5 p-10 py-24 rounded-lg flex flex-col text-center align-middle">
         <h1>CRUD The Simpsons Episodes</h1>
         <h3>Buscar Capitulo</h3>
         <div className="flex justify-center my-8">
@@ -150,34 +154,40 @@ export const HomeView = () => {
               </Button>
             </div>
 
-            <div className="flex justify-center">
-              <Button
-                variant="success"
-                type="submit"
-                className="w-1/3 mt-2 relative items-center"
-                onClick={() => navigate("../add")}
-              >
-                Agregar Episodio
-              </Button>
-            </div>
+            {userLevel === "admin" && (
+              <div className="flex justify-center">
+                <Button
+                  variant="success"
+                  type="submit"
+                  className="w-1/3 mt-2 relative items-center"
+                  onClick={() => navigate(`../add?userLevel=${userLevel}`)}
+                >
+                  Agregar Episodio
+                </Button>
+              </div>
+            )}
 
             <div className="flex justify-center">
               <Button
                 variant="secondary"
                 type="submit"
                 className="w-1/3 mt-2 relative items-center"
-                onClick={() => navigate("../all-episodes")}
+                onClick={() =>
+                  navigate(`../all-episodes?userLevel=${userLevel}`)
+                }
               >
                 Ver Todos
               </Button>
             </div>
           </Form>
         </div>
+        {searched && (
+
         <div className="flex flex-col gap-4 mt-10">
           <h4>
             {filterEpisodes.length
               ? "Resultados"
-              : "Utilizá los filtros para buscar capítulos específicos"}
+              : "No hay resultados para la bùsqueda"}
           </h4>
           {filterEpisodes.map((filtered) => (
             <Card>
@@ -198,27 +208,35 @@ export const HomeView = () => {
                 >
                   Ver Más
                 </Button>
-                <Button
-                  variant="success"
-                  className="ml-4"
-                  onClick={() => navigate(`../edit/${filtered.id}`)}
-                >
-                  Editar Episodio
-                </Button>
-                <Button
-                  variant="danger"
-                  className="ml-4"
-                  onClick={() => {
-                    setEpisodeToDelete(filtered);
-                    setModalDelete(true);
-                  }}
-                >
-                  Eliminar Episodio
-                </Button>
+
+                {userLevel === "admin" && (
+                  <Button
+                    variant="success"
+                    className="ml-4"
+                    onClick={() =>
+                      navigate(`../edit/${filtered.id}?userLevel=${userLevel}`)
+                    }
+                  >
+                    Editar Episodio
+                  </Button>
+                )}
+                {userLevel === "admin" && (
+                  <Button
+                    variant="danger"
+                    className="ml-4"
+                    onClick={() => {
+                      setEpisodeToDelete(filtered);
+                      setModalDelete(true);
+                    }}
+                  >
+                    Eliminar Episodio
+                  </Button>
+                )}
               </Card.Body>
             </Card>
           ))}
         </div>
+        )}
         <EpisodeModal
           show={modalShow}
           onHide={() => setModalShow(false)}

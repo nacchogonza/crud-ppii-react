@@ -3,18 +3,12 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-/* import Modal from "react-bootstrap/Modal"; */
 
-/* import "./App.css"; */
 import "bootstrap/dist/css/bootstrap.min.css";
-import { EpisodeModal } from "./components/EpisodeModal";
-import { DeleteModal } from "./components/DeleteModal";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { EditConfirmationModal } from "./components/EditConfirmationModal";
 
 export const EditView = () => {
-  const [episodes, setEpisodes] = useState([]);
   const [episodeToModify, setEpisodeToModify] = useState([]);
   const [directors, setDirectors] = useState([]);
   const [modalShow, setModalShow] = React.useState(false);
@@ -26,7 +20,12 @@ export const EditView = () => {
     setValue,
   } = useForm();
   const params = useParams();
+
+  const [searchParams] = useSearchParams();
+  const userLevel = searchParams.get('userLevel')
+
   const navigate = useNavigate();
+
   const onSubmit = (data) => {
     console.log(data);
     if (data.titulo === "" && data.descripcion === "" && data.director === "")
@@ -49,6 +48,11 @@ export const EditView = () => {
   };
 
   useEffect(() => {
+    /* Manejo de permisos de la ruta para usuarios no admin */
+    if (userLevel !== "admin") {
+      navigate("../");
+    }
+
     const fetchData = async () => {
       await axios.get("http://localhost:3000/api/data").then((response) => {
         /* setEpisodes(response); */
@@ -69,14 +73,10 @@ export const EditView = () => {
     };
 
     fetchData();
-  }, []);
-
-  useEffect(() => {
-   
-  }, [episodes]);
+  }, [navigate, params]);
 
   return (
-    <main className="flex justify-center p-20 bg-gray-600">
+    <main className="flex justify-center p-20 bg-gray-600 min-h-lvh">
       <div className="bg-white w-3/5 p-10 rounded-lg flex flex-col text-center align-middle">
         <h1>CRUD The Simpsons Episodes</h1>
         <h3>Editar Capitulo ID {params.id}</h3>
