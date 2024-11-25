@@ -19,7 +19,7 @@ export const EditConfirmationModal = (props) => {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Episodio Editado Correctanente
+          Episodio Editado Correctamente
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>

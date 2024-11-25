@@ -197,7 +197,7 @@ export const HomeView = () => {
                 <Card.Text>Temporada: {filtered.season}</Card.Text>
                 <Card.Text>Director: {filtered.directed_by}</Card.Text>
                 <Card.Text>
-                  Viewers: {filtered.us_viewers_in_millions}
+                  Viewers: {filtered.us_viewers_in_millions}M
                 </Card.Text>
                 <Button
                   variant="primary"
@@ -247,6 +247,9 @@ export const HomeView = () => {
           onHide={() => {
             setModalDelete(false);
             setModalDeleteConfirmation(true);
+          }}
+          onHideWithoutDelete={() => {
+            setModalDelete(false);
           }}
           episode={episodeToDelete}
         />

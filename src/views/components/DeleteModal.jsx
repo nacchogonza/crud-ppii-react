@@ -35,7 +35,7 @@ export const DeleteModal = (props) => {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="success" onClick={handleDelete}>Si</Button>
-        <Button variant="danger" className="ml-4" onClick={props.onHide}>No</Button>
+        <Button variant="danger" className="ml-4" onClick={props.onHideWithoutDelete}>No</Button>
       </Modal.Footer>
     </Modal>
   );
